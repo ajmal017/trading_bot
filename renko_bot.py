@@ -111,9 +111,9 @@ def signalIntoPosition(df):
     print(colored("Close: " + str(close), 'white'))
     print(colored("SMASlope: " + str(sma_slope), 'white'))
 
-    if bar_num == 2 and sma_slope > 0: #and obv_slope >= 30 and close > sma and sma_slope > 0:
+    if bar_num == 2 and sma_slope > 0 and obv_slope >= 30 and close > sma:
         signal = "Buy"
-    if bar_num == -2 and sma_slope < 0: #and obv_slope <= -30 and close < sma and sma_slope < 0:
+    if bar_num == -2 and sma_slope < 0 and obv_slope <= -30 and close < sma:
         signal = "Sell"
 
     print(colored("Signal " + signal, 'blue'))
@@ -222,8 +222,5 @@ while time.time() <= timeout:
         print(colored("RETRYING", 'magenta'))
         continue
     except ConnectionError:
-        print(colored("RETRYING", 'magenta'))
-        continue
-    except:
         print(colored("RETRYING", 'magenta'))
         continue
