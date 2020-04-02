@@ -4,6 +4,7 @@ import pandas as pd
 import pandas_datareader as pdr
 import numpy as np
 import statsmodels.api as sm
+import matplotlib.pyplot as plt
 import copy
 from stocktrends import Renko
 
@@ -57,6 +58,15 @@ class Indicators:
         df.dropna(inplace = True)
         return df
 
+    def bollinger_talib(self, DF, n):
+        df = DF.copy()
+        upperband, middleband, lowerband = talib.BBANDS(df["close"], timeperiod=n, nbdevup=2, nbdevdn=2, matype=0)
+        df["BB_up"] = upperband
+        df["BB_dn"] = upperband
+        df["BB_range"] = upperband - middleband
+        df.dropna(inplace = True)
+        return df
+
     def macd(self, DF, fastN, slowN, macdN) :
         df = DF.copy()
         df["MA_FAST"] = df["close"].ewm(span = fastN, min_periods = fastN).mean()
@@ -73,7 +83,7 @@ class Indicators:
         df['direction'][0] = 0
         df['vol_adj'] = df['volume'] * df['direction']
         df['obv'] = df['vol_adj'].cumsum()
-        df2 = df.drop(["daily_ret", "direction", "vol_adj"], axis = 1)
+        df2 = df.drop(["daily-ret", "direction", "vol_adj"], axis = 1)
         return df2
 
     def obv_talib(self, DF):
@@ -129,6 +139,7 @@ class Indicators:
         df['sma']= df['close'].rolling(n).mean()
         return df
 
+
     def ema_n(self, df, n):
         df["ema" + str(n)]= talib.EMA(df['close'], timeperiod=n)
         return df
@@ -171,7 +182,7 @@ class Oanda:
             self.client.request(candles)
             ohlc_dict = candles.response["candles"]
             ohlc = pd.DataFrame(ohlc_dict)
-        
+
             ohlc_df = ohlc["mid"].dropna().apply(pd.Series)
             ohlc_df["volume"] = ohlc["volume"]
             ohlc_df.index = ohlc["time"]
@@ -182,10 +193,10 @@ class Oanda:
             ohlc_df['date'] = ohlc_df['date'].apply(lambda x: str(x).split('T'))
             ohlc_df['date'] = ohlc_df['date'].apply(lambda x: x[0] + " " + x[1].split('.')[0])
             return ohlc_df
+        except Exception as error:
+            raise ConnectionError("Connection Error for Candles")
 
-        except:
-            raise ConnectionError("Candle Error")
-        
+     
             
 
 
